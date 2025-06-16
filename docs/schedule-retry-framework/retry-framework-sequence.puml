@@ -1,0 +1,80 @@
+@startuml
+title Retry Framework - Detailed Component Interactions
+
+actor "Scheduler" as scheduler
+participant "RetryJob" as job
+participant "FailedOperationService" as service
+participant "OperationProcessor" as processor
+participant "RetryLogService" as logService
+participant "DeadLetterService" as dlq
+database "H2 Database" as db
+
+== Initialization ==
+scheduler -> job: @Scheduled(fixedRate = 5min)
+activate job
+
+== Fetch Failed Operations ==
+job -> service: findNextFailedOperation()
+activate service
+service -> db: SELECT * FROM failed_operations\nWHERE status = 'FAILED'\nAND retry_count < max_retries\nORDER BY created_at ASC\nLIMIT 1
+db --> service: FailedOperation
+service --> job: Optional<FailedOperation>
+deactivate service
+
+loop For Each Failed Operation
+    job -> processor: processOperation(failedOp)
+    activate processor
+    
+    processor -> db: beginTransaction()
+    activate db
+    
+    processor -> processor: executeOperation()
+    
+    alt Operation Success
+        processor -> db: UPDATE failed_operations\nSET status = 'COMPLETED'\nWHERE id = ?
+        processor -> logService: logSuccess(failedOp)
+        activate logService
+        note right: REQUIRES_NEW transaction
+        logService -> db: INSERT INTO retry_logs\n(status, operation_id, retry_count)
+        logService --> processor: void
+        deactivate logService
+        processor -> db: commitTransaction()
+    else Operation Failure
+        processor -> db: UPDATE failed_operations\nSET retry_count = retry_count + 1\nWHERE id = ?
+        
+        alt Max Retries Reached
+            processor -> dlq: moveToDeadLetter(failedOp)
+            activate dlq
+            dlq -> db: INSERT INTO dead_letter_queue\nSELECT * FROM failed_operations\nWHERE id = ?
+            dlq -> db: DELETE FROM failed_operations\nWHERE id = ?
+            dlq --> processor: void
+            deactivate dlq
+        end
+        
+        processor -> logService: logFailure(failedOp)
+        activate logService
+        note right: REQUIRES_NEW transaction
+        logService -> db: INSERT INTO retry_logs\n(status, operation_id, retry_count, error_message)
+        logService --> processor: void
+        deactivate logService
+        
+        processor -> db: rollbackTransaction()
+    end
+    
+    deactivate db
+    processor --> job: ProcessingResult
+    deactivate processor
+end
+
+job --> scheduler: Job completed
+deactivate job
+
+note right
+- Scheduler runs every 5 minutes
+- Each operation processed in its own transaction
+- Logging uses REQUIRES_NEW to ensure audit trail
+- Dead letter queue for failed operations after max retries
+- Retry count and status tracking
+end note
+
+@enduml 

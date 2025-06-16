@@ -1,0 +1,17 @@
+@startuml
+title User Signup Flow with Independent Email and Logging
+
+start
+:User Signup Request;
+:Begin transaction;
+:Save User;
+:Call sendOtpEmail() [REQUIRES_NEW];
+:Call logAuditEvent() [REQUIRES_NEW];
+:Commit main transaction;
+stop
+
+note right
+Even if email or logging fails, user is still saved.
+REQUIRES_NEW ensures these actions are isolated.
+end note
+@enduml 

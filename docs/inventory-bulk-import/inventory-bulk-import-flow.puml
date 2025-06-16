@@ -1,0 +1,51 @@
+@startuml
+title Inventory Bulk Import - Process Flow
+
+start
+:Client Uploads File;
+:Begin Outer Transaction;
+
+partition "Record Processing" {
+    repeat
+        :Read Next Record;
+        :Validate Record;
+        
+        if (Is Valid?) then (yes)
+            :Begin Nested Transaction;
+            :Save to Inventory Table;
+            :Log Success [REQUIRES_NEW];
+            :Commit Nested Transaction;
+        else (no)
+            :Log Validation Errors [REQUIRES_NEW];
+            :Rollback Nested Transaction;
+        endif
+    repeat while (More Records?) is (yes) not (no)
+}
+
+:Generate Import Summary;
+:Commit Outer Transaction;
+:Return Summary to Client;
+stop
+
+note right
+Each record is processed independently within the outer transaction.
+Validation includes:
+- Required fields
+- Data format
+- Business rules
+- Duplicate checks
+
+Success logging includes:
+- Record ID
+- Timestamp
+- User info
+- Operation type
+
+- Outer transaction ensures atomicity
+- Nested transactions for partial rollbacks
+- REQUIRES_NEW for logging
+- Independent record processing
+- Detailed error tracking
+end note
+
+@enduml 

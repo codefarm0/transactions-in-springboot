@@ -1,0 +1,84 @@
+@startuml
+title Banking Ledger System - Transaction Sequence
+
+actor "Client" as client
+participant "BankingController" as controller
+participant "TransactionService" as txService
+participant "LedgerService" as ledger
+participant "AccountService" as account
+participant "ReversalService" as reversal
+participant "NotificationService" as notify
+database "H2 Database" as db
+
+== Begin Transfer ==
+client -> controller: POST /api/v1/transfer
+activate controller
+controller -> txService: transfer(source, dest, amount)
+activate txService
+txService -> account: checkBalance(source)
+account -> db: SELECT balance FROM accounts WHERE id=?
+db --> account: balance
+account --> txService: balance
+alt Insufficient Funds
+    txService --> controller: ErrorResponse (Insufficient funds)
+    deactivate txService
+    controller --> client: HTTP 400
+    deactivate controller
+else Sufficient Funds
+    txService -> db: beginTransaction()
+    activate db
+    txService -> account: debit(source, amount)
+    account -> db: UPDATE accounts SET balance=balance-amount WHERE id=?
+    txService -> account: credit(dest, amount)
+    account -> db: UPDATE accounts SET balance=balance+amount WHERE id=?
+    txService -> ledger: logLedgerEntry(source, dest, amount)
+    activate ledger
+    note right: REQUIRES_NEW transaction
+    ledger -> db: INSERT INTO ledger_entries (...)
+    ledger --> txService: LedgerEntry
+    deactivate ledger
+    txService -> db: commitTransaction()
+    deactivate db
+    txService -> notify: sendTransferNotification()
+    notify -> db: INSERT INTO notifications (...)
+    notify --> txService: void
+    txService --> controller: TransferResponse
+    deactivate txService
+    controller --> client: HTTP 200 OK
+    deactivate controller
+end
+
+== Reversal Flow ==
+client -> controller: POST /api/v1/transfer/reverse
+activate controller
+controller -> reversal: reverseTransaction(txId)
+activate reversal
+reversal -> db: beginTransaction()
+activate db
+reversal -> account: credit(source, amount)
+account -> db: UPDATE accounts SET balance=balance+amount WHERE id=?
+reversal -> account: debit(dest, amount)
+account -> db: UPDATE accounts SET balance=balance-amount WHERE id=?
+reversal -> ledger: logLedgerReversal(txId)
+activate ledger
+note right: REQUIRES_NEW transaction
+ledger -> db: INSERT INTO ledger_entries (reversal...)
+ledger --> reversal: LedgerEntry
+deactivate ledger
+reversal -> db: commitTransaction()
+deactivate db
+reversal -> notify: sendReversalNotification()
+notify -> db: INSERT INTO notifications (...)
+notify --> reversal: void
+reversal --> controller: ReversalResponse
+deactivate reversal
+controller --> client: HTTP 200 OK
+deactivate controller
+
+note right
+- Ledger entry is logged in a separate transaction (REQUIRES_NEW)
+- Reversal is also logged in the ledger
+- All main operations are transactional
+end note
+
+@enduml 

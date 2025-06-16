@@ -1,0 +1,78 @@
+@startuml
+title Inventory Bulk Import - Partial Transaction Rollbacks
+
+actor "Client" as client
+participant "InventoryController" as controller
+participant "BulkImportService" as importService
+participant "InventoryValidator" as validator
+participant "InventoryService" as inventoryService
+participant "ImportLogService" as logService
+database "H2 Database" as db
+
+== Initial Upload ==
+client -> controller: POST /api/v1/inventory/bulk-import
+activate controller
+controller -> importService: importInventory(file)
+activate importService
+
+== Begin Outer Transaction ==
+importService -> db: beginTransaction()
+activate db
+
+== Process Records ==
+loop For Each Record
+    importService -> validator: validateRecord(record)
+    activate validator
+    validator --> importService: ValidationResult
+    deactivate validator
+    
+    alt Valid Record
+        importService -> db: beginNestedTransaction()
+        note right: NESTED transaction
+        
+        importService -> inventoryService: saveInventory(record)
+        activate inventoryService
+        inventoryService -> db: INSERT INTO inventory\n(part_number, quantity, price, ...)
+        inventoryService --> importService: Inventory
+        deactivate inventoryService
+        
+        importService -> logService: logSuccess(record)
+        activate logService
+        note right: REQUIRES_NEW transaction
+        logService -> db: INSERT INTO import_logs\n(status, record_id, timestamp)
+        logService --> importService: void
+        deactivate logService
+        
+        importService -> db: commitNestedTransaction()
+    else Invalid Record
+        importService -> logService: logFailure(record, validationErrors)
+        activate logService
+        note right: REQUIRES_NEW transaction
+        logService -> db: INSERT INTO import_logs\n(status, record_id, errors, timestamp)
+        logService --> importService: void
+        deactivate logService
+        
+        importService -> db: rollbackNestedTransaction()
+    end
+end
+
+== Complete Import ==
+importService -> db: commitTransaction()
+deactivate db
+
+importService -> importService: generateImportSummary()
+importService --> controller: ImportSummary
+deactivate importService
+
+controller --> client: HTTP 200 OK with summary
+deactivate controller
+
+note right
+- Outer transaction ensures atomicity of the entire import
+- Nested transactions allow partial rollbacks
+- Each record processed independently
+- Validation errors don't affect other records
+- Logging uses REQUIRES_NEW for audit trail
+end note
+
+@enduml 

@@ -1,0 +1,32 @@
+@startuml
+title Course Enrollment Flow with Optimistic Locking
+
+start
+:Student requests enrollment;
+:Fetch course by ID (with version);
+if (Course full?) then (yes)
+  :Reject enrollment (Course Full);
+  stop
+else (no)
+  :Begin Transaction;
+  :Try to update course seats and increment version\n(WHERE id=? AND version=?);
+  if (Update count == 0?) then (yes)
+    :Rollback Transaction;
+    :Reject enrollment (Concurrent Modification);
+    stop
+  else (no)
+    :Save enrollment record;
+    :Commit Transaction;
+    :Send notification;
+    stop
+  endif
+endif
+
+note right
+- Optimistic locking via version field
+- Transactional versioning prevents lost updates
+- Handles concurrent seat updates
+- Notifies student on success
+end note
+
+@enduml 

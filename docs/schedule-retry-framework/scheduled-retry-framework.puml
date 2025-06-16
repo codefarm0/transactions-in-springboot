@@ -1,0 +1,32 @@
+@startuml
+title Scheduled Retry Flow for Failed Operations
+
+start
+:Start Retry Job;
+partition Scheduler {
+  repeat
+    :Fetch next failed operation;
+    :Begin transaction;
+    if (Operation succeeds?) then (yes)
+      :Mark as completed;
+      :Log retry success [REQUIRES_NEW];
+      :Commit;
+    else (no)
+      :Increment retry count;
+      if (Max retries reached?) then (yes)
+        :Move to dead letter table;
+      endif
+      :Rollback;
+    endif
+  repeat while (More retries?)
+}
+stop
+
+note right
+- Uses REQUIRES_NEW for logging to ensure
+  audit trail even if main operation fails
+- Dead letter table for failed operations
+  after max retries
+- Transaction management for each retry attempt
+end note
+@enduml 

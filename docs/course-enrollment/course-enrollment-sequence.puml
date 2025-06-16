@@ -1,0 +1,61 @@
+@startuml
+title Course Enrollment System - Sequence with Optimistic Locking
+
+actor "Student" as student
+participant "EnrollmentController" as controller
+participant "EnrollmentService" as service
+participant "CourseRepository" as repo
+participant "NotificationService" as notify
+database "H2 Database" as db
+
+student -> controller: POST /api/v1/enroll
+activate controller
+controller -> service: enroll(studentId, courseId)
+activate service
+service -> repo: findCourseById(courseId)
+repo -> db: SELECT * FROM courses WHERE id=?
+db --> repo: Course (with version)
+repo --> service: Course
+service -> repo: checkAvailability(course)
+alt Course Full
+    service --> controller: ErrorResponse (Course Full)
+    deactivate service
+    controller --> student: HTTP 409 Conflict
+    deactivate controller
+else Seats Available
+    service -> db: beginTransaction()
+    activate db
+    service -> repo: updateCourseSeats(courseId, version)
+    repo -> db: UPDATE courses SET seats=seats-1, version=version+1 WHERE id=? AND version=?
+db --> repo: updateCount
+alt updateCount == 0
+    service -> db: rollbackTransaction()
+    deactivate db
+    service --> controller: ErrorResponse (Concurrent Modification)
+    deactivate service
+    controller --> student: HTTP 409 Conflict
+    deactivate controller
+else updateCount == 1
+    service -> repo: saveEnrollment(studentId, courseId)
+    repo -> db: INSERT INTO enrollments (...)
+    repo --> service: Enrollment
+    service -> db: commitTransaction()
+    deactivate db
+    service -> notify: sendEnrollmentNotification()
+    notify -> db: INSERT INTO notifications (...)
+    notify --> service: void
+    service --> controller: EnrollmentResponse
+    deactivate service
+    controller --> student: HTTP 200 OK
+    deactivate controller
+end
+end
+
+note right
+- Optimistic locking via version field
+- Transactional versioning ensures no lost updates
+- Handles concurrent seat updates
+- Notifies student on success
+end note
+
+@enduml 

@@ -1,0 +1,52 @@
+@startuml
+title User Signup Microservice Sequence Diagram
+
+actor Client
+participant "UserController" as controller
+participant "UserService" as service
+participant "EmailService" as email
+participant "AuditService" as audit
+database "H2 Database" as db
+
+Client -> controller: POST /api/v1/users/signup
+activate controller
+
+controller -> service: signupUser(userDTO)
+activate service
+
+service -> db: beginTransaction()
+activate db
+
+service -> db: saveUser(user)
+note right: Main transaction
+
+service -> email: sendOtpEmail(user)
+activate email
+note right: REQUIRES_NEW transaction
+email -> db: saveEmailLog()
+email --> service: email sent
+deactivate email
+
+service -> audit: logAuditEvent(user)
+activate audit
+note right: REQUIRES_NEW transaction
+audit -> db: saveAuditLog()
+audit --> service: audit logged
+deactivate audit
+
+service -> db: commitTransaction()
+deactivate db
+
+service --> controller: UserResponse
+deactivate service
+
+controller --> Client: HTTP 201 Created
+deactivate controller
+
+note right
+- H2 Database is used for all persistence
+- Email and Audit operations use REQUIRES_NEW
+- Main user transaction is independent
+end note
+
+@enduml 
