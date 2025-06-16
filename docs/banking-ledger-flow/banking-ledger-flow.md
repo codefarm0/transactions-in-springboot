@@ -1,3 +1,4 @@
+```plantuml
 @startuml
 title Banking Transaction Flow with Ledger Entry and Reversal
 
@@ -34,4 +35,6 @@ Reversal is also logged in the ledger.
 All main operations are transactional.
 end note
 
-@enduml 
+@enduml
+
+```
