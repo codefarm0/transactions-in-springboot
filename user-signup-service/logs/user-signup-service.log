@@ -1,0 +1,66 @@
+2025-06-16 10:41:44,010 [] INFO  o.h.validator.internal.util.Version - HV000001: Hibernate Validator 8.0.2.Final
+2025-06-16 10:41:44,050 [] INFO  c.c.u.UserSignupServiceApplication - Starting UserSignupServiceApplication using Java 17.0.14 with PID 34768 (/Users/arkumar/Documents/learning/springboot/transactions/user-signup-service/build/classes/java/main started by arkumar in /Users/arkumar/Documents/learning/springboot/transactions/user-signup-service)
+2025-06-16 10:41:44,051 [] DEBUG c.c.u.UserSignupServiceApplication - Running with Spring Boot v3.5.0, Spring v6.2.7
+2025-06-16 10:41:44,052 [] INFO  c.c.u.UserSignupServiceApplication - No active profile set, falling back to 1 default profile: "default"
+2025-06-16 10:41:44,335 [] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-06-16 10:41:44,354 [] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 15 ms. Found 2 JPA repository interfaces.
+2025-06-16 10:41:44,517 [] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2025-06-16 10:41:44,520 [] INFO  o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2025-06-16 10:41:44,521 [] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2025-06-16 10:41:44,521 [] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.41]
+2025-06-16 10:41:44,536 [] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2025-06-16 10:41:44,536 [] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 467 ms
+2025-06-16 10:41:44,582 [] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-06-16 10:41:44,602 [] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.6.15.Final
+2025-06-16 10:41:44,618 [] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2025-06-16 10:41:44,709 [] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-06-16 10:41:44,721 [] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2025-06-16 10:41:44,807 [] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection conn0: url=jdbc:h2:file:./userdb user=SA
+2025-06-16 10:41:44,808 [] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2025-06-16 10:41:44,818 [] WARN  org.hibernate.orm.deprecation - HHH90000025: H2Dialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2025-06-16 10:41:44,827 [] INFO  o.hibernate.orm.connections.pooling - HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 2.3.232
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2025-06-16 10:41:45,103 [] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-06-16 10:41:45,121 [] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-06-16 10:41:45,235 [] DEBUG c.c.u.s.JwtAuthenticationFilter - Filter 'jwtAuthenticationFilter' configured for use
+2025-06-16 10:41:45,235 [] DEBUG c.c.usersignup.filter.TraceIdFilter - Filter 'traceIdFilter' configured for use
+2025-06-16 10:41:45,253 [] INFO  o.s.s.c.a.a.c.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailsService
+2025-06-16 10:41:45,292 [] WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2025-06-16 10:41:45,436 [] INFO  o.s.b.a.h.H2ConsoleAutoConfiguration - H2 console available at '/h2-console'. Database available at 'jdbc:h2:file:./userdb'
+2025-06-16 10:41:45,457 [] INFO  o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+2025-06-16 10:41:45,461 [] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+2025-06-16 10:41:45,465 [] INFO  c.c.u.UserSignupServiceApplication - Started UserSignupServiceApplication in 1.632 seconds (process running for 1.875)
+2025-06-16 10:41:53,152 [] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-06-16 10:41:53,152 [] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2025-06-16 10:41:53,153 [] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 1 ms
+2025-06-16 10:41:53,166 [4777523c650946e097d936aa18ba6914] INFO  c.c.usersignup.filter.TraceIdFilter - Request started - Method: GET, URI: /api/users/profile
+2025-06-16 10:41:53,276 [4777523c650946e097d936aa18ba6914] INFO  c.c.u.controller.UserController - Fetching profile for user: arvindMaurya12@gmail.com
+2025-06-16 10:41:53,276 [4777523c650946e097d936aa18ba6914] INFO  c.c.usersignup.service.UserService - Fetching user profile for email: arvindMaurya12@gmail.com
+2025-06-16 10:41:53,298 [4777523c650946e097d936aa18ba6914] INFO  c.c.usersignup.filter.TraceIdFilter - Request completed - Method: GET, URI: /api/users/profile, Status: 200
+2025-06-16 10:43:13,019 [0dc345af750f4eae9630a77640968be7] INFO  c.c.usersignup.filter.TraceIdFilter - Request started - Method: GET, URI: /api/users/profile
+2025-06-16 10:43:13,036 [0dc345af750f4eae9630a77640968be7] INFO  c.c.u.controller.UserController - Fetching profile for user: arvindMaurya12@gmail.com
+2025-06-16 10:43:13,036 [0dc345af750f4eae9630a77640968be7] INFO  c.c.usersignup.service.UserService - Fetching user profile for email: arvindMaurya12@gmail.com
+2025-06-16 10:43:13,041 [0dc345af750f4eae9630a77640968be7] INFO  c.c.usersignup.filter.TraceIdFilter - Request completed - Method: GET, URI: /api/users/profile, Status: 200
+2025-06-16 10:43:13,377 [aa0291c0c5e24d21b5478c9c6ae8090f] INFO  c.c.usersignup.filter.TraceIdFilter - Request started - Method: GET, URI: /api/users/profile
+2025-06-16 10:43:13,386 [aa0291c0c5e24d21b5478c9c6ae8090f] INFO  c.c.u.controller.UserController - Fetching profile for user: arvindMaurya12@gmail.com
+2025-06-16 10:43:13,386 [aa0291c0c5e24d21b5478c9c6ae8090f] INFO  c.c.usersignup.service.UserService - Fetching user profile for email: arvindMaurya12@gmail.com
+2025-06-16 10:43:13,389 [aa0291c0c5e24d21b5478c9c6ae8090f] INFO  c.c.usersignup.filter.TraceIdFilter - Request completed - Method: GET, URI: /api/users/profile, Status: 200
+2025-06-16 10:43:13,726 [51742bf94c5940e698dfe1192457b7f6] INFO  c.c.usersignup.filter.TraceIdFilter - Request started - Method: GET, URI: /api/users/profile
+2025-06-16 10:43:13,733 [51742bf94c5940e698dfe1192457b7f6] INFO  c.c.u.controller.UserController - Fetching profile for user: arvindMaurya12@gmail.com
+2025-06-16 10:43:13,733 [51742bf94c5940e698dfe1192457b7f6] INFO  c.c.usersignup.service.UserService - Fetching user profile for email: arvindMaurya12@gmail.com
+2025-06-16 10:43:13,737 [51742bf94c5940e698dfe1192457b7f6] INFO  c.c.usersignup.filter.TraceIdFilter - Request completed - Method: GET, URI: /api/users/profile, Status: 200
+2025-06-16 10:43:14,053 [d37c8ea907ac4ee5aab06b532aad7c5b] INFO  c.c.usersignup.filter.TraceIdFilter - Request started - Method: GET, URI: /api/users/profile
+2025-06-16 10:43:14,060 [d37c8ea907ac4ee5aab06b532aad7c5b] INFO  c.c.u.controller.UserController - Fetching profile for user: arvindMaurya12@gmail.com
+2025-06-16 10:43:14,060 [d37c8ea907ac4ee5aab06b532aad7c5b] INFO  c.c.usersignup.service.UserService - Fetching user profile for email: arvindMaurya12@gmail.com
+2025-06-16 10:43:14,063 [d37c8ea907ac4ee5aab06b532aad7c5b] INFO  c.c.usersignup.filter.TraceIdFilter - Request completed - Method: GET, URI: /api/users/profile, Status: 200
+2025-06-16 10:43:30,642 [] INFO  o.s.b.w.e.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
+2025-06-16 10:43:30,645 [] INFO  o.s.b.w.e.tomcat.GracefulShutdown - Graceful shutdown complete
+2025-06-16 10:43:30,652 [] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-06-16 10:43:30,654 [] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2025-06-16 10:43:30,656 [] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
